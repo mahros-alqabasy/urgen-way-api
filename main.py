@@ -19,13 +19,12 @@ app = FastAPI()
 
 from fastapi.middleware.cors import CORSMiddleware
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
+    allow_origins=["*"],  # Or use specific origin like ["https://mahros-alqabasy.github.io"]
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods
-    allow_headers=["*"],  # Allow all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
