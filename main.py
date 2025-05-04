@@ -8,24 +8,31 @@ from openrouteservice.exceptions import ApiError
 import pandas as pd
 import numpy as np
 from sklearn.neighbors import KDTree
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 import openrouteservice
 
+
+
+
 app = FastAPI()
 
 
-
-
-from fastapi.middleware.cors import CORSMiddleware
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Or use specific origin like ["https://mahros-alqabasy.github.io"]
+    allow_origins=["https://mahros-alqabasy.github.io"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    
 )
+
+
+@app.get("/test-cors")
+async def test_cors():
+    return {"message": "CORS test successful"}
+
 
 
 # Load environment and data
