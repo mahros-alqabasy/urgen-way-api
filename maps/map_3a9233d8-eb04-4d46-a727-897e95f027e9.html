@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_63938dc7f7fef386dc0fa64835c285a9 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_63938dc7f7fef386dc0fa64835c285a9" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_63938dc7f7fef386dc0fa64835c285a9 = L.map(
+                "map_63938dc7f7fef386dc0fa64835c285a9",
+                {
+                    center: [40.758, -73.9855],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 13,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_6ac6f045320791073a14e13bb2407804 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_6ac6f045320791073a14e13bb2407804.addTo(map_63938dc7f7fef386dc0fa64835c285a9);
+        
+    
+            var marker_e0a4eba62b20729ef57dcd41a8bf0852 = L.marker(
+                [40.758, -73.9855],
+                {
+}
+            ).addTo(map_63938dc7f7fef386dc0fa64835c285a9);
+        
+    
+            var icon_f3471cf29c154b50414dc73cf4c094ec = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_2bee2cb42d3fb478ef7f156552568692 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f2841941afdc6313c870b31d752be4b2 = $(`<div id="html_f2841941afdc6313c870b31d752be4b2" style="width: 100.0%; height: 100.0%;">User Location</div>`)[0];
+                popup_2bee2cb42d3fb478ef7f156552568692.setContent(html_f2841941afdc6313c870b31d752be4b2);
+            
+        
+
+        marker_e0a4eba62b20729ef57dcd41a8bf0852.bindPopup(popup_2bee2cb42d3fb478ef7f156552568692)
+        ;
+
+        
+    
+    
+                marker_e0a4eba62b20729ef57dcd41a8bf0852.setIcon(icon_f3471cf29c154b50414dc73cf4c094ec);
+            
+    
+            var marker_3e81d18161752c384f0f0dc7e6efafa5 = L.marker(
+                [40.76941213, -73.986808395],
+                {
+}
+            ).addTo(map_63938dc7f7fef386dc0fa64835c285a9);
+        
+    
+            var icon_5c5992e55ea6e871c090c208b38fe94b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_8f7d8df78e3f14f32cbebc399b1ae8ad = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_c1e19c6d0d51fd33e77e6d8bf61a5935 = $(`<div id="html_c1e19c6d0d51fd33e77e6d8bf61a5935" style="width: 100.0%; height: 100.0%;">THE ADDICTION INSTITUTE OF NEW YORK</div>`)[0];
+                popup_8f7d8df78e3f14f32cbebc399b1ae8ad.setContent(html_c1e19c6d0d51fd33e77e6d8bf61a5935);
+            
+        
+
+        marker_3e81d18161752c384f0f0dc7e6efafa5.bindPopup(popup_8f7d8df78e3f14f32cbebc399b1ae8ad)
+        ;
+
+        
+    
+    
+                marker_3e81d18161752c384f0f0dc7e6efafa5.setIcon(icon_5c5992e55ea6e871c090c208b38fe94b);
+            
+    
+
+        function geo_json_f93255f2842b1b3c73938f7a2f43758d_onEachFeature(feature, layer) {
+            layer.on({
+            });
+        };
+        var geo_json_f93255f2842b1b3c73938f7a2f43758d = L.geoJson(null, {
+                onEachFeature: geo_json_f93255f2842b1b3c73938f7a2f43758d_onEachFeature,
+            
+            ...{
+}
+        });
+
+        function geo_json_f93255f2842b1b3c73938f7a2f43758d_add (data) {
+            geo_json_f93255f2842b1b3c73938f7a2f43758d
+                .addData(data);
+        }
+            geo_json_f93255f2842b1b3c73938f7a2f43758d_add({"coordinates": [[-73.985506, 40.758002], [-73.985533, 40.757963], [-73.985649, 40.758011], [-73.985732, 40.758046], [-73.986227, 40.758253], [-73.988386, 40.75916], [-73.990891, 40.760216], [-73.991227, 40.760355], [-73.994069, 40.761552], [-73.993607, 40.762185], [-73.993156, 40.762803], [-73.992701, 40.763428], [-73.992241, 40.764058], [-73.992082, 40.764275], [-73.991785, 40.764686], [-73.991329, 40.765309], [-73.990855, 40.765945], [-73.990531, 40.766398], [-73.990414, 40.766564], [-73.989962, 40.767183], [-73.989627, 40.767646], [-73.989495, 40.767826], [-73.989049, 40.768446], [-73.988856, 40.768711], [-73.988716, 40.768904], [-73.988561, 40.769118], [-73.98818, 40.769621], [-73.988056, 40.769786], [-73.987655, 40.769615], [-73.986896, 40.769294]], "type": "LineString"});
+        geo_json_f93255f2842b1b3c73938f7a2f43758d.setStyle(function(feature) {return feature.properties.style;});
+
+        
+    
+            geo_json_f93255f2842b1b3c73938f7a2f43758d.addTo(map_63938dc7f7fef386dc0fa64835c285a9);
+        
+</script>
+</html>
