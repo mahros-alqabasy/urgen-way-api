@@ -1,8 +1,10 @@
 # Create by Mahros
 from fastapi import FastAPI, Query
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from typing import Tuple
+
+import openrouteservice
+from openrouteservice.exceptions import ApiError
+
 import pandas as pd
 import numpy as np
 from sklearn.neighbors import KDTree
@@ -20,7 +22,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://mahros-alqabasy.github.io/urgent-way", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -52,6 +54,83 @@ def haversine(lat1, lon1, lat2, lon2):
 class UserLocation(BaseModel):
     latitude: float
     longitude: float
+
+
+
+#error handelers
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+import logging
+
+app = FastAPI()
+
+# Setup basic logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("urgentroute")
+
+
+from openrouteservice.exceptions import ApiError
+
+@app.exception_handler(ApiError)
+async def openrouteservice_api_error_handler(request: Request, exc: ApiError):
+    logger.error(f"OpenRouteService API error: {exc}", exc_info=True)
+
+    try:
+        detail = exc.args[0]
+
+        # If the error is a dictionary (expected case)
+        if isinstance(detail, dict):
+            code = detail.get("error", {}).get("code", None)
+
+            if code == 2004:
+                return JSONResponse(
+                    status_code=400,
+                    content={"detail": "The route is too long. Please choose a closer location."}
+                )
+
+            message = detail.get("error", {}).get("message", "Routing error.")
+            return JSONResponse(status_code=400, content={"detail": message})
+
+        # If it's a string or other type, return it as-is
+        return JSONResponse(status_code=400, content={"detail": str(detail)})
+
+    except Exception as e:
+        logger.error("Failed to parse OpenRouteService ApiError", exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Unexpected routing error. Please try again later."}
+        )
+
+
+
+# Handle all unexpected internal errors
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled error: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "An unexpected error occurred. Please try again later."}
+    )
+
+# Optional: Clean response for 422 validation errors
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={"detail": "Invalid input.", "errors": exc.errors()}
+    )
+
+# Optional: Custom HTTP error responses
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail}
+    )
+
+
 
 @app.get("/nearest-hospital")
 def get_nearest_hospital(lat: float = Query(...), lon: float = Query(...)):
