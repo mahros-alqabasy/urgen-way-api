@@ -1,5 +1,13 @@
-# Create by Mahros
-from fastapi import FastAPI, Query
+# Created by Mahros
+
+# ----------------------------
+# ✅ Imports
+# ----------------------------
+from fastapi import FastAPI, Request, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from pydantic import BaseModel
 
 import openrouteservice
@@ -8,46 +16,44 @@ from openrouteservice.exceptions import ApiError
 import pandas as pd
 import numpy as np
 from sklearn.neighbors import KDTree
-from fastapi.middleware.cors import CORSMiddleware
+import logging
 from dotenv import load_dotenv
 import os
-import openrouteservice
 
-
-
-
+# ----------------------------
+# ✅ App Initialization
+# ----------------------------
 app = FastAPI()
 
-
+# ✅ CORS: Allow frontend access (GitHub Pages domain)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://mahros-alqabasy.github.io"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    
 )
 
+# ✅ Logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("urgentroute")
 
-@app.get("/test-cors")
-async def test_cors():
-    return {"message": "CORS test successful"}
-
-
-
-# Load environment and data
+# ----------------------------
+# ✅ Environment and Data Setup
+# ----------------------------
 load_dotenv()
 API_KEY = os.getenv("ORS_API_KEY")
-BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
 client = openrouteservice.Client(key=API_KEY)
 
-# Load hospital data and prepare KDTree
+# Load hospital dataset
 hospital_data = pd.read_csv("us_hospital_locations.csv")[['NAME', 'LATITUDE', 'LONGITUDE']].dropna()
 hospital_data.columns = ['Hospital Name', 'Latitude', 'Longitude']
 coords = hospital_data[['Latitude', 'Longitude']].to_numpy()
 kdtree = KDTree(np.radians(coords), metric='euclidean')
 
-# Input model for location
+# ----------------------------
+# ✅ Utility
+# ----------------------------
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371
     phi1, phi2 = np.radians(lat1), np.radians(lat2)
@@ -61,57 +67,33 @@ class UserLocation(BaseModel):
     latitude: float
     longitude: float
 
-
-
-#error handelers
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
-from starlette.exceptions import HTTPException as StarletteHTTPException
-import logging
-
-app = FastAPI()
-
-# Setup basic logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("urgentroute")
-
-
-from openrouteservice.exceptions import ApiError
-
+# ----------------------------
+# ✅ Error Handlers
+# ----------------------------
 @app.exception_handler(ApiError)
 async def openrouteservice_api_error_handler(request: Request, exc: ApiError):
     logger.error(f"OpenRouteService API error: {exc}", exc_info=True)
-
     try:
         detail = exc.args[0]
-
-        # If the error is a dictionary (expected case)
         if isinstance(detail, dict):
-            code = detail.get("error", {}).get("code", None)
-
+            code = detail.get("error", {}).get("code")
             if code == 2004:
                 return JSONResponse(
                     status_code=400,
                     content={"detail": "The route is too long. Please choose a closer location."}
                 )
-
-            message = detail.get("error", {}).get("message", "Routing error.")
-            return JSONResponse(status_code=400, content={"detail": message})
-
-        # If it's a string or other type, return it as-is
+            return JSONResponse(
+                status_code=400,
+                content={"detail": detail.get("error", {}).get("message", "Routing error.")}
+            )
         return JSONResponse(status_code=400, content={"detail": str(detail)})
-
-    except Exception as e:
-        logger.error("Failed to parse OpenRouteService ApiError", exc_info=True)
+    except Exception:
+        logger.error("Failed to parse ORS ApiError", exc_info=True)
         return JSONResponse(
             status_code=500,
             content={"detail": "Unexpected routing error. Please try again later."}
         )
 
-
-
-# Handle all unexpected internal errors
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled error: {exc}", exc_info=True)
@@ -120,7 +102,6 @@ async def generic_exception_handler(request: Request, exc: Exception):
         content={"detail": "An unexpected error occurred. Please try again later."}
     )
 
-# Optional: Clean response for 422 validation errors
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
@@ -128,7 +109,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         content={"detail": "Invalid input.", "errors": exc.errors()}
     )
 
-# Optional: Custom HTTP error responses
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     return JSONResponse(
@@ -136,7 +116,9 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         content={"detail": exc.detail}
     )
 
-
+# ----------------------------
+# ✅ Endpoints
+# ----------------------------
 
 @app.get("/nearest-hospital")
 def get_nearest_hospital(lat: float = Query(...), lon: float = Query(...)):
@@ -149,11 +131,12 @@ def get_nearest_hospital(lat: float = Query(...), lon: float = Query(...)):
 
     hospital_coords = (hospital['Latitude'], hospital['Longitude'])
     coords = [user_location[::-1], hospital_coords[::-1]]
+
     route = client.directions(coordinates=coords, profile='driving-car', format='geojson')
     geometry = route['features'][0]['geometry']
-    properties = route['features'][0]['properties']['segments'][0]
-    distance_km = properties['distance'] / 1000
-    duration_min = properties['duration'] / 60
+    props = route['features'][0]['properties']['segments'][0]
+    distance_km = props['distance'] / 1000
+    duration_min = props['duration'] / 60
 
     return {
         "hospital": hospital["Hospital Name"],
