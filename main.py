@@ -1,3 +1,4 @@
+# Create by Mahros
 from fastapi import FastAPI, Query
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -10,6 +11,21 @@ import os
 import openrouteservice
 
 app = FastAPI()
+
+
+
+
+from fastapi.middleware.cors import CORSMiddleware
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Load environment and data
 load_dotenv()
