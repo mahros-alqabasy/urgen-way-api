@@ -1,8 +1,8 @@
-# Created by Mahros
 
-# ----------------------------
-# ✅ Imports
-# ----------------------------
+
+
+
+
 from fastapi import FastAPI, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -20,40 +20,41 @@ import logging
 from dotenv import load_dotenv
 import os
 
-# ----------------------------
-# ✅ App Initialization
-# ----------------------------
+
+
+
 app = FastAPI()
 
-# ✅ CORS: Allow frontend access (GitHub Pages domain)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://mahros-alqabasy.github.io"],
+    # allow_origins=["https://mahros-alqabasy.github.io"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ✅ Logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("urgentroute")
 
-# ----------------------------
-# ✅ Environment and Data Setup
-# ----------------------------
+
+
+
 load_dotenv()
 API_KEY = os.getenv("ORS_API_KEY")
 client = openrouteservice.Client(key=API_KEY)
 
-# Load hospital dataset
+
 hospital_data = pd.read_csv("us_hospital_locations.csv")[['NAME', 'LATITUDE', 'LONGITUDE']].dropna()
 hospital_data.columns = ['Hospital Name', 'Latitude', 'Longitude']
 coords = hospital_data[['Latitude', 'Longitude']].to_numpy()
 kdtree = KDTree(np.radians(coords), metric='euclidean')
 
-# ----------------------------
-# ✅ Utility
-# ----------------------------
+
+
+
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371
     phi1, phi2 = np.radians(lat1), np.radians(lat2)
@@ -67,9 +68,9 @@ class UserLocation(BaseModel):
     latitude: float
     longitude: float
 
-# ----------------------------
-# ✅ Error Handlers
-# ----------------------------
+
+
+
 @app.exception_handler(ApiError)
 async def openrouteservice_api_error_handler(request: Request, exc: ApiError):
     logger.error(f"OpenRouteService API error: {exc}", exc_info=True)
@@ -116,9 +117,9 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         content={"detail": exc.detail}
     )
 
-# ----------------------------
-# ✅ Endpoints
-# ----------------------------
+
+
+
 
 @app.get("/nearest-hospital")
 def get_nearest_hospital(lat: float = Query(...), lon: float = Query(...)):
