@@ -8,18 +8,13 @@ from sklearn.neighbors import KDTree
 from dotenv import load_dotenv
 import os
 import openrouteservice
-import folium
-import uuid
 
 app = FastAPI()
-
-# Mount static file directory for map HTMLs
-os.makedirs("maps", exist_ok=True)
-app.mount("/maps", StaticFiles(directory="maps"), name="maps")
 
 # Load environment and data
 load_dotenv()
 API_KEY = os.getenv("ORS_API_KEY")
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
 client = openrouteservice.Client(key=API_KEY)
 
 # Load hospital data and prepare KDTree
@@ -42,8 +37,6 @@ class UserLocation(BaseModel):
     latitude: float
     longitude: float
 
-
-
 @app.get("/nearest-hospital")
 def get_nearest_hospital(lat: float = Query(...), lon: float = Query(...)):
     user_location = (lat, lon)
@@ -61,23 +54,12 @@ def get_nearest_hospital(lat: float = Query(...), lon: float = Query(...)):
     distance_km = properties['distance'] / 1000
     duration_min = properties['duration'] / 60
 
-    # Generate map
-    m = folium.Map(location=user_location, zoom_start=13)
-    folium.Marker(location=user_location, popup="User Location", icon=folium.Icon(color='blue')).add_to(m)
-    folium.Marker(location=hospital_coords, popup=hospital['Hospital Name'], icon=folium.Icon(color='red')).add_to(m)
-    folium.GeoJson(geometry, name='route').add_to(m)
-
-    map_id = str(uuid.uuid4())
-    map_filename = f"map_{map_id}.html"
-    map_path = os.path.join("maps", map_filename)
-    m.save(map_path)
-
     return {
         "hospital": hospital["Hospital Name"],
         "location": [hospital["Latitude"], hospital["Longitude"]],
         "distance_km": round(distance_km, 2),
         "duration_min": round(duration_min, 1),
-        "map_url": f"/maps/{map_filename}"
+        "route_geometry": geometry
     }
 
 @app.post("/route")
